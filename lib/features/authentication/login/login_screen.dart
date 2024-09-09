@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
+import 'package:mini_whatsapp/core/helper/show_alert_dialog.dart';
 import 'package:mini_whatsapp/core/utils/app_router.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Color.fromARGB(255, 6, 151, 11),
           ),
           hintText: 'Search Country Code',
-          hintStyle:const  TextStyle(color: Colors.white54),
+          hintStyle: const TextStyle(color: Colors.white54),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.withOpacity(0.1))),
           focusedBorder: const UnderlineInputBorder(
@@ -47,6 +48,28 @@ class _LoginScreenState extends State<LoginScreen> {
         countryCodeController.text = country.countryCode;
       },
     );
+  }
+
+  sendCodeToPhone() {
+    final phone = phoneNumberController.text;
+    final countryName = countryNameController.text;
+
+    if (phone.isEmpty) {
+      return showAlertDialog(
+          context: context, message: 'Please Enter Phone Number');
+    } else if (phone.length < 9) {
+      return showAlertDialog(
+          context: context,
+          message:
+              'The phone number eneterd is too short for the country $countryName');
+    } else if (phone.length > 13) {
+      return showAlertDialog(
+          context: context,
+          message:
+              'The phone number eneterd is too long for the country $countryName');
+    } else {
+      context.go(AppRouter.kOtpScreen);
+    }
   }
 
   @override
@@ -120,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Expanded(
                         child: CustomTextField(
+                      onChanged: (value) {},
                       controller: phoneNumberController,
                       readOnly: false,
                       keyboardType: TextInputType.number,
@@ -131,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: () => context.go(AppRouter.kOtpScreen),
+                onPressed: sendCodeToPhone,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   elevation: 0,
@@ -150,3 +174,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+// () => context.go(AppRouter.kOtpScreen)

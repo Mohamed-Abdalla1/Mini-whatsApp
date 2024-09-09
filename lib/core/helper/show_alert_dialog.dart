@@ -13,12 +13,13 @@ showAlertDialog({
           message,
           style: const TextStyle(color: Colors.grey, fontSize: 15),
         ),
-        contentPadding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
         actions: [
-          TextButton(onPressed: (){}, child:Text(
-             btnText ?? 'OK',
-             
-          ))
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                btnText ?? 'OK',
+              ))
         ],
       );
     },
