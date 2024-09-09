@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mini_whatsapp/core/utils/app_router.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -6,7 +8,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff11191b),
+      backgroundColor: const Color(0xff11191b),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 150.0),
@@ -39,18 +41,15 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(
                 height: 16,
               ),
-              Container(
+              SizedBox(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.zero),
-                    border: Border.all(style: BorderStyle.none)),
                 child: ElevatedButton(
                     style: const ButtonStyle(
-                      foregroundColor: WidgetStatePropertyAll(Colors.white),
+                      foregroundColor: WidgetStatePropertyAll(Colors.black),
                       backgroundColor:
                           WidgetStatePropertyAll(Color(0xff008566)),
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.go(AppRouter.kLoginScreen),
                     child: const Text('Agree And Continue')),
               )
             ],
