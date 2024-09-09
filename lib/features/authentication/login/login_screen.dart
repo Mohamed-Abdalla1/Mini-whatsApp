@@ -1,4 +1,8 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mini_whatsapp/core/common/custom_text_field.dart';
+import 'package:mini_whatsapp/core/utils/app_router.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +16,39 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController(text: 'Egypt');
   late TextEditingController countryCodeController;
   late TextEditingController phoneNumberController;
+
+  showCountryCodePicker() {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: true,
+      favorite: ['ET'],
+      countryListTheme: CountryListThemeData(
+        flagSize: 20,
+        bottomSheetHeight: 600,
+        backgroundColor: const Color(0xff11191b),
+        borderRadius: BorderRadius.circular(20),
+        textStyle: const TextStyle(color: Colors.grey),
+        inputDecoration: InputDecoration(
+          labelStyle: const TextStyle(color: Colors.grey),
+          prefixIcon: const Icon(
+            Icons.language,
+            color: Color.fromARGB(255, 6, 151, 11),
+          ),
+          hintText: 'Search Country Code',
+          hintStyle:const  TextStyle(color: Colors.white54),
+          enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.1))),
+          focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.green)),
+        ),
+      ),
+      onSelect: (country) {
+        countryNameController.text = country.name;
+        countryCodeController.text = country.countryCode;
+      },
+    );
+  }
+
   @override
   void initState() {
     countryNameController = TextEditingController(text: 'Egypt');
@@ -57,19 +94,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                  child: TextFormField(
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
+                  child: CustomTextField(
+                    onTap: showCountryCodePicker,
                     controller: countryNameController,
                     readOnly: true,
-                    onTap: () {},
-                    decoration: const InputDecoration(
-                      hintStyle: TextStyle(color: Colors.amber),
-                      suffixIcon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.green,
-                      ),
+                    suffixIcon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.green,
                     ),
                   ),
                 ),
@@ -79,30 +110,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     SizedBox(
-                      width: 70,
-                      child: TextFormField(
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                        controller: countryCodeController,
-                        readOnly: true,
-                        onTap: () {},
-                        decoration: const InputDecoration(),
-                      ),
-                    ),
+                        width: 70,
+                        child: CustomTextField(
+                            onTap: showCountryCodePicker,
+                            controller: countryCodeController,
+                            readOnly: true)),
                     const SizedBox(
                       width: 10,
                     ),
                     Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                        controller: phoneNumberController,
-                        onTap: () {},
-                        decoration: const InputDecoration(),
-                      ),
-                    ),
+                        child: CustomTextField(
+                      controller: phoneNumberController,
+                      readOnly: false,
+                      keyboardType: TextInputType.number,
+                    )),
                   ],
                 ),
               ],
@@ -110,16 +131,17 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: () {},
-                child: Text(
+                onPressed: () => context.go(AppRouter.kOtpScreen),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  elevation: 0,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero),
+                ),
+                child: const Text(
                   'Next',
                   style: TextStyle(color: Colors.black),
                 ),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    elevation: 0,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero)),
               ),
             )
           ],
