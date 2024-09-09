@@ -1,13 +1,10 @@
 import 'dart:developer';
-
-import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
-import 'package:mini_whatsapp/core/helper/show_alert_dialog.dart';
-import 'package:mini_whatsapp/core/utils/app_router.dart';
-import 'package:mini_whatsapp/features/authentication/otp/otp_Screen.dart';
+import 'package:mini_whatsapp/core/helper/show_country_code_picker.dart';
+import 'package:mini_whatsapp/features/authentication/login/login_repo/login_repoistory.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,60 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController(text: 'Egypt');
   late TextEditingController countryCodeController;
   late TextEditingController phoneNumberController;
-
-  showCountryCodePicker() {
-    showCountryPicker(
-      context: context,
-      showPhoneCode: true,
-      favorite: ['ET'],
-      countryListTheme: CountryListThemeData(
-        flagSize: 20,
-        bottomSheetHeight: 600,
-        backgroundColor: const Color(0xff11191b),
-        borderRadius: BorderRadius.circular(20),
-        textStyle: const TextStyle(color: Colors.grey),
-        inputDecoration: InputDecoration(
-          labelStyle: const TextStyle(color: Colors.grey),
-          prefixIcon: const Icon(
-            Icons.language,
-            color: Color.fromARGB(255, 6, 151, 11),
-          ),
-          hintText: 'Search Country Code',
-          hintStyle: const TextStyle(color: Colors.white54),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.1))),
-          focusedBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.green)),
-        ),
-      ),
-      onSelect: (country) {
-        countryNameController.text = country.name;
-        countryCodeController.text = country.countryCode;
-      },
-    );
-  }
-
-  sendCodeToPhone() {
-    final phone = phoneNumberController.text;
-    final countryName = countryNameController.text;
-
-    if (phone.isEmpty) {
-      return showAlertDialog(
-          context: context, message: 'Please Enter Phone Number');
-    } else if (phone.length < 9) {
-      return showAlertDialog(
-          context: context,
-          message:
-              'The phone number eneterd is too short for the country $countryName');
-    } else if (phone.length > 13) {
-      return showAlertDialog(
-          context: context,
-          message:
-              'The phone number eneterd is too long for the country $countryName');
-    } else {
-      context.go(AppRouter.kOtpScreen);
-    }
-  }
 
   @override
   void initState() {
@@ -121,7 +64,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: CustomTextField(
-                    onTap: showCountryCodePicker,
+                    onTap: () {
+                      setState(() {
+                        return showCountryCodePicker(context,
+                            countryCodeController: countryCodeController,
+                            countryNameController: countryNameController);
+                      });
+                    },
                     controller: countryNameController,
                     readOnly: true,
                     suffixIcon: const Icon(
@@ -138,8 +87,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                         width: 70,
                         child: CustomTextField(
-                            onTap: showCountryCodePicker,
                             controller: countryCodeController,
+                            onTap: () {
+                              setState(() {
+                                return showCountryCodePicker(context,
+                                    countryCodeController:
+                                        countryCodeController,
+                                    countryNameController:
+                                        countryNameController);
+                              });
+                            },
                             readOnly: true)),
                     const SizedBox(
                       width: 10,
@@ -159,25 +116,13 @@ class _LoginScreenState extends State<LoginScreen> {
               width: 100,
               child: ElevatedButton(
                 onPressed: () {
-                  FirebaseAuth.instance.verifyPhoneNumber(
-                      phoneNumber: phoneNumberController.text,
-                      verificationCompleted: (phoneAuthCredential) {},
-                      codeAutoRetrievalTimeout: (verificationId) {
-                        log('Time Out');
-                      },
-                      codeSent: (verificationId, forceResendingToken) {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return OtpScreen(verificationId: verificationId);
-                          },
-                        ));
-                      },
-                      verificationFailed: (error) {
-                        log(error.toString());
-                      });
-                }
-                // sendCodeToPhone
-                ,
+                  try {
+                    LoginRepoistory.verifyWithPhoneNumber(FirebaseAuth.instance,
+                        phoneNumberController, countryNameController, context);
+                  } on Exception catch (e) {
+                    log(e.toString());
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   elevation: 0,

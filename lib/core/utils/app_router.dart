@@ -2,7 +2,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:mini_whatsapp/features/Splash/screens/welcome_screen.dart';
 import 'package:mini_whatsapp/features/authentication/login/login_screen.dart';
-import 'package:mini_whatsapp/features/authentication/otp/otp_Screen.dart';
+import 'package:mini_whatsapp/features/authentication/login/otp/otp_Screen.dart';
 
 abstract class AppRouter {
   static const kLoginScreen = '/loginScreen';

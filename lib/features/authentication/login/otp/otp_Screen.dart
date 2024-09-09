@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
+import 'package:mini_whatsapp/core/helper/show_alert_dialog.dart';
 import 'package:mini_whatsapp/features/authentication/profile/profile_screen.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -56,6 +55,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 keyboardType: TextInputType.number,
               ),
             ),
+            const SizedBox(height: 20,),
             SizedBox(
               width: 100,
               child: ElevatedButton(
@@ -73,12 +73,10 @@ class _OtpScreenState extends State<OtpScreen> {
                           builder: (context) => const ProfileScreen(),
                         ));
                   } catch (e) {
-                    log(e.toString());
+                    return showAlertDialog(
+                        context: context, message: 'Invalid Code');
                   }
-                }
-                // sendCodeToPhone
-
-                ,
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   elevation: 0,
