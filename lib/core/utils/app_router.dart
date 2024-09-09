@@ -16,12 +16,16 @@ abstract class AppRouter {
       ),
       GoRoute(
         path: kLoginScreen,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const LoginScreen(
+
+        ),
       ),
-      GoRoute(
-        path: kOtpScreen,
-        builder: (context, state) => const OtpScreen(),
-      )
+      // GoRoute(
+      //   path: kOtpScreen,
+      //   builder: (context, state) => const OtpScreen(
+      //     verificationId: ,
+      //   ),
+      // )
     ],
   );
 }

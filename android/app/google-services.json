@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "270857418441",
+    "project_id": "mini-whatsapp-d5250",
+    "storage_bucket": "mini-whatsapp-d5250.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270857418441:android:f21b366192153496563f18",
+        "android_client_info": {
+          "package_name": "com.example.mini_whatsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "270857418441-nfpqkbgkp4b22npge6lll0uq7f3i5krn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mini_whatsapp",
+            "certificate_hash": "eb8e6a19fddf8fba4969bee1bf33f018babfef61"
+          }
+        },
+        {
+          "client_id": "270857418441-qsq199f2h6es5uf1r5iuclsvicstq5iu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1KliLRoA6t_Q-RfJ1_TM3XGVTXgUCnO0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "270857418441-qsq199f2h6es5uf1r5iuclsvicstq5iu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "270857418441-cbhm3ekie668k8rl2cf92im9vaeq3dug.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.miniWhatsapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

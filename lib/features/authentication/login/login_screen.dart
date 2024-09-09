@@ -1,13 +1,16 @@
+import 'dart:developer';
+
 import 'package:country_picker/country_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
 import 'package:mini_whatsapp/core/helper/show_alert_dialog.dart';
 import 'package:mini_whatsapp/core/utils/app_router.dart';
+import 'package:mini_whatsapp/features/authentication/otp/otp_Screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -155,7 +158,26 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: sendCodeToPhone,
+                onPressed: () {
+                  FirebaseAuth.instance.verifyPhoneNumber(
+                      phoneNumber: phoneNumberController.text,
+                      verificationCompleted: (phoneAuthCredential) {},
+                      codeAutoRetrievalTimeout: (verificationId) {
+                        log('Time Out');
+                      },
+                      codeSent: (verificationId, forceResendingToken) {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return OtpScreen(verificationId: verificationId);
+                          },
+                        ));
+                      },
+                      verificationFailed: (error) {
+                        log(error.toString());
+                      });
+                }
+                // sendCodeToPhone
+                ,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   elevation: 0,

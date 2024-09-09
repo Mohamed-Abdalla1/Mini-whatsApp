@@ -42,12 +42,13 @@ class WelcomeScreen extends StatelessWidget {
                 height: 16,
               ),
               SizedBox(
-                width: double.infinity,
+                width: 300,
                 child: ElevatedButton(
-                    style: const ButtonStyle(
-                      foregroundColor: WidgetStatePropertyAll(Colors.black),
-                      backgroundColor:
-                          WidgetStatePropertyAll(Color(0xff008566)),
+                    style: ElevatedButton.styleFrom(
+                      shape:const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(2))),
+                      foregroundColor: (Colors.black),
+                      backgroundColor: (Color(0xff008566)),
                     ),
                     onPressed: () => context.go(AppRouter.kLoginScreen),
                     child: const Text('Agree And Continue')),
