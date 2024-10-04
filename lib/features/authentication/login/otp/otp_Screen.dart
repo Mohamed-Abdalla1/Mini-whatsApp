@@ -1,97 +1,132 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
-import 'package:mini_whatsapp/core/helper/show_alert_dialog.dart';
-import 'package:mini_whatsapp/features/authentication/profile/profile_screen.dart';
+import 'package:mini_whatsapp/core/common/extension/custom_theme_extension.dart';
+import 'package:mini_whatsapp/core/common/widgets/custom_icon_button.dart';
+import 'package:mini_whatsapp/features/authentication/controller/auth_controller.dart';
 
-class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key, required this.verificationId});
-  final String verificationId;
+class VerificationPage extends ConsumerWidget {
+  const VerificationPage({
+    super.key,
+    required this.smsCodeId,
+    required this.phoneNumber,
+  });
 
-  @override
-  State<OtpScreen> createState() => _OtpScreenState();
-}
+  final String smsCodeId;
+  final String phoneNumber;
 
-class _OtpScreenState extends State<OtpScreen> {
-  late TextEditingController codeController;
-
-  @override
-  void initState() {
-    codeController = TextEditingController();
-    super.initState();
+  void verifySmsCode(
+    BuildContext context,
+    WidgetRef ref,
+    String smsCode,
+  ) {
+    ref.read(authControllerProvider).verifySmsCode(
+          context: context,
+          smsCodeId: smsCodeId,
+          smsCode: smsCode,
+          mounted: true,
+        );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xff11191b),
       appBar: AppBar(
-        title: const Text(
-          'Verifying Your Number',
-          style: TextStyle(fontSize: 20),
-        ),
-        backgroundColor: const Color(0xff11191b),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: true,
+        title: Text(
+          'Verify your number',
+          style: TextStyle(
+            color: context.theme.authAppbarTextColor,
+          ),
+        ),
+        actions: [
+          CustomIconButton(
+            onPressed: () {},
+            icon: Icons.more_vert,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            const Center(
-              child: Text(
-                'We have sent an SMS with your code',
-                style: TextStyle(color: Colors.white54),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: TextStyle(color: context.theme.greyColor),
+                  children: [
+                    const TextSpan(
+                      text:
+                          "You've tried to register +251935838471. before requesting an SMS or Call with your code.",
+                    ),
+                    TextSpan(
+                      text: "Wrong number?",
+                      style: TextStyle(
+                        color: context.theme.blueColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50.0),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 80),
               child: CustomTextField(
-                controller: codeController,
                 readOnly: false,
-                hintText: ' -  -  -  -  -  -  ',
+                hintText: "- - -  - - -",
                 fontSize: 30,
                 keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(height: 20,),
-            SizedBox(
-              width: 100,
-              child: ElevatedButton(
-                onPressed: () async {
-                  try {
-                    final cred = PhoneAuthProvider.credential(
-                      verificationId: widget.verificationId,
-                      smsCode: codeController.text,
-                    );
-
-                    await FirebaseAuth.instance.signInWithCredential(cred);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileScreen(),
-                        ));
-                  } catch (e) {
-                    return showAlertDialog(
-                        context: context, message: 'Invalid Code');
+                onChanged: (value) {
+                  if (value.length == 6) {
+                    return verifySmsCode(context, ref, value);
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  elevation: 0,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero),
-                ),
-                child: const Text(
-                  'Next',
-                  style: TextStyle(color: Colors.black),
-                ),
               ),
-            )
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Enter 6-digit code',
+              style: TextStyle(color: context.theme.greyColor),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              children: [
+                Icon(Icons.message, color: context.theme.greyColor),
+                const SizedBox(width: 20),
+                Text(
+                  'Resend SMS',
+                  style: TextStyle(
+                    color: context.theme.greyColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Divider(
+              color: context.theme.greyColor!.withOpacity(.2),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.phone, color: context.theme.greyColor),
+                const SizedBox(width: 20),
+                Text(
+                  'Call Me',
+                  style: TextStyle(
+                    color: context.theme.greyColor,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 }
+

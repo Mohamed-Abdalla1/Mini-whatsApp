@@ -1,35 +1,106 @@
-import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_whatsapp/core/common/custom_text_field.dart';
-import 'package:mini_whatsapp/core/helper/show_country_code_picker.dart';
-import 'package:mini_whatsapp/features/authentication/login/login_repo/login_repoistory.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:mini_whatsapp/core/common/extension/custom_theme_extension.dart';
+import 'package:mini_whatsapp/core/common/helper/show_alert_dialog.dart';
+import 'package:mini_whatsapp/core/common/utils/coloors.dart';
+import 'package:mini_whatsapp/core/common/widgets/custom_elevated_button.dart';
+import 'package:mini_whatsapp/core/common/widgets/custom_icon_button.dart';
+import 'package:mini_whatsapp/features/authentication/controller/auth_controller.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  late TextEditingController countryNameController =
-      TextEditingController(text: 'Egypt');
+class _LoginPageState extends ConsumerState<LoginPage> {
+  late TextEditingController countryNameController;
   late TextEditingController countryCodeController;
   late TextEditingController phoneNumberController;
 
+  sendCodeToPhone() {
+    final phoneNumber = phoneNumberController.text;
+    final countryName = countryNameController.text;
+    final countryCode = countryCodeController.text;
+
+    if (phoneNumber.isEmpty) {
+      return showAlertDialog(
+        context: context,
+        message: "Please enter your phone number",
+      );
+    } else if (phoneNumber.length < 9) {
+      return showAlertDialog(
+        context: context,
+        message:
+            'The phone number you entered is too short for the country: $countryName\n\nInclude your area code if you haven\'t',
+      );
+    } else if (phoneNumber.length > 10) {
+      return showAlertDialog(
+        context: context,
+        message:
+            "The phone number you entered is too long for the country: $countryName",
+      );
+    }
+
+    ref.read(authControllerProvider).sendSmsCode(
+          context: context,
+          phoneNumber: "+$countryCode$phoneNumber",
+        );
+  }
+
+  showCountryPickerBottomSheet() {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: true,
+      favorite: ['ET'],
+      countryListTheme: CountryListThemeData(
+        bottomSheetHeight: 600,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        flagSize: 22,
+        borderRadius: BorderRadius.circular(20),
+        textStyle: TextStyle(color: context.theme.greyColor),
+        inputDecoration: InputDecoration(
+          labelStyle: TextStyle(color: context.theme.greyColor),
+          prefixIcon: const Icon(
+            Icons.language,
+            color: Coloors.greenDark,
+          ),
+          hintText: 'Search country by code or name',
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: context.theme.greyColor!.withOpacity(.2),
+            ),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Coloors.greenDark,
+            ),
+          ),
+        ),
+      ),
+      onSelect: (country) {
+        countryNameController.text = country.name;
+        countryCodeController.text = country.phoneCode;
+      },
+    );
+  }
+
   @override
   void initState() {
-    countryNameController = TextEditingController(text: 'Egypt');
-    countryCodeController = TextEditingController(text: '+ 20');
+    countryNameController = TextEditingController(text: 'Ethiopia');
+    countryCodeController = TextEditingController(text: '251');
     phoneNumberController = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    countryCodeController.dispose();
     countryNameController.dispose();
+    countryCodeController.dispose();
     phoneNumberController.dispose();
     super.dispose();
   }
@@ -37,108 +108,100 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff11191b),
       appBar: AppBar(
-        backgroundColor: const Color(0xff11191b),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        title: Text(
+          'Enter your phone number',
+          style: TextStyle(
+            color: context.theme.authAppbarTextColor,
+          ),
+        ),
         centerTitle: true,
-        automaticallyImplyLeading: true,
-        title: const Text(' Enter Your Phone Number'),
+        actions: [
+          CustomIconButton(
+            onPressed: () {},
+            icon: Icons.more_vert,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                text: 'WhatsApp will need to verify your number. ',
+                style: TextStyle(
+                  color: context.theme.greyColor,
+                  height: 1.5,
+                ),
+                children: [
+                  TextSpan(
+                    text: "What's my number?",
+                    style: TextStyle(
+                      color: context.theme.blueColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50),
+            child: CustomTextField(
+              onTap: showCountryPickerBottomSheet,
+              controller: countryNameController,
+              readOnly: true,
+              suffixIcon: const Icon(
+                Icons.arrow_drop_down,
+                color: Coloors.greenDark,
+                size: 22,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50),
+            child: Row(
               children: [
-                const Center(
-                  child: Text(
-                    'WhatsApp will need to verify your phone number',
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                SizedBox(
+                  width: 70,
                   child: CustomTextField(
-                    onTap: () {
-                      setState(() {
-                        return showCountryCodePicker(context,
-                            countryCodeController: countryCodeController,
-                            countryNameController: countryNameController);
-                      });
-                    },
-                    controller: countryNameController,
+                    onTap: showCountryPickerBottomSheet,
+                    controller: countryCodeController,
                     readOnly: true,
-                    suffixIcon: const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.green,
-                    ),
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                        width: 70,
-                        child: CustomTextField(
-                            controller: countryCodeController,
-                            onTap: () {
-                              setState(() {
-                                return showCountryCodePicker(context,
-                                    countryCodeController:
-                                        countryCodeController,
-                                    countryNameController:
-                                        countryNameController);
-                              });
-                            },
-                            readOnly: true)),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                        child: CustomTextField(
-                      onChanged: (value) {},
-                      controller: phoneNumberController,
-                      readOnly: false,
-                      keyboardType: TextInputType.number,
-                    )),
-                  ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: CustomTextField(
+                    controller: phoneNumberController,
+                    hintText: 'phone number',
+                    readOnly: false,
+                    keyboardType: TextInputType.number,
+                  ),
                 ),
               ],
             ),
-            SizedBox(
-              width: 100,
-              child: ElevatedButton(
-                onPressed: () {
-                  try {
-                    LoginRepoistory.verifyWithPhoneNumber(FirebaseAuth.instance,
-                        phoneNumberController, countryNameController, context);
-                  } on Exception catch (e) {
-                    log(e.toString());
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  elevation: 0,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero),
-                ),
-                child: const Text(
-                  'Next',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            )
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Carrier charges may apply',
+            style: TextStyle(
+              color: context.theme.greyColor,
+            ),
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: CustomElevatedButton(
+        onPressed: sendCodeToPhone,
+        text: 'NEXT',
+        buttonWidth: 90,
       ),
     );
   }
 }
-// () => context.go(AppRouter.kOtpScreen)
